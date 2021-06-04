@@ -3,7 +3,7 @@ Given a CSV this script will download all the music from youtube
 
 If you provide a url it will try to use that, otherwise it will do a youtube search using the album and track title - downloading the first result.
 
-only downloads audio by default
+only downloads audio by default, will skip any rows which have anything in their "dont_download_flag" column (Downloaded in this example)
 
 ### example csv
 
