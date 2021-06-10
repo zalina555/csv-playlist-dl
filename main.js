@@ -48,11 +48,25 @@ function make_file_name(track_info){
     return `${track_name.replace(/[/\\?%*:|"<>]/g, '-')}.mp3`;
 }
 
+async function check_url_validity(url){
+    valid_url = false
+    try{
+        let info = await ytdl.getInfo(url)
+        if(info){
+            console.log('url is valid',url)
+            valid_url = true
+        }
+    }catch(e){
+        console.log('unable to get track info',`${url}`)
+    }
+    return valid_url
+}
+
 async function identify_download_link(track_info){
     let link = null
     if(track_info[csv_columns.url] != ""){
-        valid_url = ytdl.validateURL(track_info[csv_columns.url])
-        if(valid_url){
+        let valid = await check_url_validity(track_info[csv_columns.url])
+        if(valid){
             link = track_info[csv_columns.url]
         }
     }
@@ -60,7 +74,10 @@ async function identify_download_link(track_info){
         let search_results = await ytsr(construct_track_name(track_info),{limit:1})
         console.log(search_results)
         if(search_results.items.length > 0){
-            link = search_results.items[0].url
+            let valid = await check_url_validity(search_results.items[0].url)
+            if(valid){
+                link = search_results.items[0].url
+            }
         }
     }
     return link
@@ -73,15 +90,19 @@ async function download_track(track_info){
         return
     }
     current_downloads++
-    let download_link = await identify_download_link(track_info)
-    if(download_link){
-        let output_path = path.join('.','output',output_file_name)
-        downloads_started++
-        console.log(`started downloading ${output_file_name} (${downloads_started}/${total_tracks})`)
-        let stream = ytdl(download_link,{options:'highestaudio'}).pipe(fs.createWriteStream(output_path));
-        await new Promise(resolve => stream.on("close", resolve));
-        downloads_finished++
-        console.log(`finished downloading ${output_file_name} (${downloads_finished}/${total_tracks})`)
+    try{
+        let download_link = await identify_download_link(track_info)
+        if(download_link){
+            let output_path = path.join('.','output',output_file_name)
+            downloads_started++
+            console.log(`started downloading ${output_file_name} (${downloads_started}/${total_tracks})`)
+            let stream = ytdl(download_link,{options:'highestaudio'}).pipe(fs.createWriteStream(output_path));
+            await new Promise(resolve => stream.on("close", resolve));
+            downloads_finished++
+            console.log(`finished downloading ${output_file_name} (${downloads_finished}/${total_tracks})`)
+        }
+    }catch(e){
+        console.log('unable to download track',e)
     }
     current_downloads--
 }
