@@ -4,11 +4,15 @@
   "description": "",
   "main": "main.js",
   "dependencies": {
+    "@distube/ytpl": "^1.1.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "normalize-volume": "^1.0.7",
     "papaparse": "^5.3.1",
-    "ytdl-core": "^4.8.2",
+    "youtube-mp3-downloader": "^0.7.8",
+    "youtube-playlist": "^1.0.4",
+    "ytdl-core": "^4.11.0",
     "ytsr": "^3.5.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
